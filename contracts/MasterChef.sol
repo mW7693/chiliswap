@@ -62,6 +62,8 @@ contract MasterChef is Ownable {
     ChiliToken public chili;
     // Dev address.
     address public devaddr;
+    // Block number when mint SUSHI period ends.
+    uint256 public mintEndBlock;
     // Block number when bonus SUSHI period ends.
     uint256 public bonusEndBlock;
     // SUSHI tokens created per block.
@@ -90,11 +92,13 @@ contract MasterChef is Ownable {
         uint256 _chiliPerBlock,
         uint256 _startBlock,
         uint256 _bonusEndBlock,
+        uint256 _mintEndBlock
     ) public {
         chili = _chili;
         devaddr = _devaddr;
         chiliPerBlock = _chiliPerBlock;
         bonusEndBlock = _bonusEndBlock;
+        mintEndBlock = _mintEndBlock;
         startBlock = _startBlock;
     }
 
@@ -146,7 +150,9 @@ contract MasterChef is Ownable {
 
     // Return reward multiplier over the given _from to _to block.
     function getMultiplier(uint256 _from, uint256 _to) public view returns (uint256) {
-        if (_to <= bonusEndBlock) {
+        if (_to <= mintEndBlock) {
+            return 0;
+        } else if (_to <= bonusEndBlock) {
             return _to.sub(_from).mul(BONUS_MULTIPLIER);
         } else if (_from >= bonusEndBlock) {
             return _to.sub(_from);
