@@ -4,19 +4,19 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 
-contract SushiRestaurant {
+contract ChiliRestaurant {
     using SafeMath for uint256;
     event Enter(address indexed user, uint256 amount);
     event Leave(address indexed user, uint256 amount);
 
-    IERC20 public sushi;
+    IERC20 public chili;
 
     uint256 public reductionPerBlock;
     uint256 public multiplier;
     uint256 public lastMultiplerProcessBlock;
 
-    uint256 public accSushiPerShare;
-    uint256 public ackSushiBalance;
+    uint256 public accChiliPerShare;
+    uint256 public ackChiliBalance;
     uint256 public totalShares;
 
     struct UserInfo {
@@ -27,8 +27,8 @@ contract SushiRestaurant {
 
     mapping (address => UserInfo) public userInfo;
 
-    constructor(IERC20 _sushi, uint256 _reductionPerBlock) public {
-        sushi = _sushi;
+    constructor(IERC20 _chili, uint256 _reductionPerBlock) public {
+        chili = _chili;
         reductionPerBlock = _reductionPerBlock; // Use 999999390274979584 for 10% per month
         multiplier = 1e18; // Should be good for 20 years
         lastMultiplerProcessBlock = block.number;
@@ -49,58 +49,58 @@ contract SushiRestaurant {
         }
         multiplier = multiplier.mul(fraction).div(1e18);
         lastMultiplerProcessBlock = block.number;
-        // Update accSushiPerShare / ackSushiBalance
+        // Update accChiliPerShare / ackChiliBalance
         if (totalShares > 0) {
-            uint256 additionalSushi = sushi.balanceOf(address(this)).sub(ackSushiBalance);
-            accSushiPerShare = accSushiPerShare.add(additionalSushi.mul(1e12).div(totalShares));
-            ackSushiBalance = ackSushiBalance.add(additionalSushi);
+            uint256 additionalChili = chili.balanceOf(address(this)).sub(ackChiliBalance);
+            accChiliPerShare = accChiliPerShare.add(additionalChili.mul(1e12).div(totalShares));
+            ackChiliBalance = ackChiliBalance.add(additionalChili);
         }
     }
 
     // Get user pending reward. May be outdated until someone calls cleanup.
     function getPendingReward(address _user) public view returns (uint256) {
         UserInfo storage user = userInfo[_user];
-        return user.share.mul(accSushiPerShare).div(1e12).sub(user.rewardDebt);
+        return user.share.mul(accChiliPerShare).div(1e12).sub(user.rewardDebt);
     }
 
     // Enter the restaurant. Pay some SUSHIs. Earn some shares.
     function enter(uint256 _amount) public {
         cleanup();
-        safeSushiTransfer(msg.sender, getPendingReward(msg.sender));
-        sushi.transferFrom(msg.sender, address(this), _amount);
-        ackSushiBalance = ackSushiBalance.add(_amount);
+        safeChiliTransfer(msg.sender, getPendingReward(msg.sender));
+        chili.transferFrom(msg.sender, address(this), _amount);
+        ackChiliBalance = ackChiliBalance.add(_amount);
         UserInfo storage user = userInfo[msg.sender];
         uint256 moreShare = _amount.mul(multiplier).div(1e18);
         user.amount = user.amount.add(_amount);
         totalShares = totalShares.add(moreShare);
         user.share = user.share.add(moreShare);
-        user.rewardDebt = user.share.mul(accSushiPerShare).div(1e12);
+        user.rewardDebt = user.share.mul(accChiliPerShare).div(1e12);
         emit Enter(msg.sender, _amount);
     }
 
     // Leave the restaurant. Claim back your SUSHIs.
     function leave(uint256 _amount) public {
         cleanup();
-        safeSushiTransfer(msg.sender, getPendingReward(msg.sender));
+        safeChiliTransfer(msg.sender, getPendingReward(msg.sender));
         UserInfo storage user = userInfo[msg.sender];
         uint256 lessShare = user.share.mul(_amount).div(user.amount);
         user.amount = user.amount.sub(_amount);
         totalShares = totalShares.sub(lessShare);
         user.share = user.share.sub(lessShare);
-        user.rewardDebt = user.share.mul(accSushiPerShare).div(1e12);
-        safeSushiTransfer(msg.sender, _amount);
+        user.rewardDebt = user.share.mul(accChiliPerShare).div(1e12);
+        safeChiliTransfer(msg.sender, _amount);
         emit Leave(msg.sender, _amount);
     }
 
-    // Safe sushi transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
-    function safeSushiTransfer(address _to, uint256 _amount) internal {
-        uint256 sushiBal = sushi.balanceOf(address(this));
-        if (_amount > sushiBal) {
-            sushi.transfer(_to, sushiBal);
-            ackSushiBalance = ackSushiBalance.sub(sushiBal);
+    // Safe chili transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
+    function safeChiliTransfer(address _to, uint256 _amount) internal {
+        uint256 chiliBal = chili.balanceOf(address(this));
+        if (_amount > chiliBal) {
+            chili.transfer(_to, chiliBal);
+            ackChiliBalance = ackChiliBalance.sub(chiliBal);
         } else {
-            sushi.transfer(_to, _amount);
-            ackSushiBalance = ackSushiBalance.sub(_amount);
+            chili.transfer(_to, _amount);
+            ackChiliBalance = ackChiliBalance.sub(_amount);
         }
     }
 }

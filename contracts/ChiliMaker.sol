@@ -8,18 +8,18 @@ import "./uniswapv2/interfaces/IUniswapV2Pair.sol";
 import "./uniswapv2/interfaces/IUniswapV2Factory.sol";
 
 
-contract SushiMaker {
+contract ChiliMaker {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     IUniswapV2Factory public factory;
     address public bar;
-    address public sushi;
+    address public chili;
     address public weth;
 
-    constructor(IUniswapV2Factory _factory, address _bar, address _sushi, address _weth) public {
+    constructor(IUniswapV2Factory _factory, address _bar, address _chili, address _weth) public {
         factory = _factory;
-        sushi = _sushi;
+        chili = _chili;
         bar = _bar;
         weth = _weth;
     }
@@ -35,14 +35,14 @@ contract SushiMaker {
     }
 
     function _toWETH(address token) internal returns (uint256) {
-        if (token == sushi) {
+        if (token == chili) {
             uint amount = IERC20(token).balanceOf(address(this));
             _safeTransfer(token, bar, amount);
             return 0;
         }
         if (token == weth) {
             uint amount = IERC20(token).balanceOf(address(this));
-            _safeTransfer(token, factory.getPair(weth, sushi), amount);
+            _safeTransfer(token, factory.getPair(weth, chili), amount);
             return amount;
         }
         IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(token, weth));
@@ -59,12 +59,12 @@ contract SushiMaker {
         uint amountOut = numerator / denominator;
         (uint amount0Out, uint amount1Out) = token0 == token ? (uint(0), amountOut) : (amountOut, uint(0));
         _safeTransfer(token, address(pair), amountIn);
-        pair.swap(amount0Out, amount1Out, factory.getPair(weth, sushi), new bytes(0));
+        pair.swap(amount0Out, amount1Out, factory.getPair(weth, chili), new bytes(0));
         return amountOut;
     }
 
     function _toSUSHI(uint256 amountIn) internal {
-        IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(weth, sushi));
+        IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(weth, chili));
         (uint reserve0, uint reserve1,) = pair.getReserves();
         address token0 = pair.token0();
         (uint reserveIn, uint reserveOut) = token0 == weth ? (reserve0, reserve1) : (reserve1, reserve0);
