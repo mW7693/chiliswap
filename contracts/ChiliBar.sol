@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 
-contract ChiliBar is ERC20("ChiliBar", "xSUSHI"){
+contract ChiliBar is ERC20("ChiliBar", "xCHILI"){
     using SafeMath for uint256;
     IERC20 public chili;
 
@@ -13,7 +13,7 @@ contract ChiliBar is ERC20("ChiliBar", "xSUSHI"){
         chili = _chili;
     }
 
-    // Enter the bar. Pay some SUSHIs. Earn some shares.
+    // Enter the bar. Pay some CHILIs. Earn some shares.
     function enter(uint256 _amount) public {
         uint256 totalChili = chili.balanceOf(address(this));
         uint256 totalShares = totalSupply();
@@ -26,7 +26,7 @@ contract ChiliBar is ERC20("ChiliBar", "xSUSHI"){
         chili.transferFrom(msg.sender, address(this), _amount);
     }
 
-    // Leave the bar. Claim back your SUSHIs.
+    // Leave the bar. Claim back your CHILIs.
     function leave(uint256 _share) public {
         uint256 totalShares = totalSupply();
         uint256 what = _share.mul(chili.balanceOf(address(this))).div(totalShares);

@@ -20,7 +20,7 @@ contract ChiliRestaurant {
     uint256 public totalShares;
 
     struct UserInfo {
-        uint256 amount; // SUSHI stake amount
+        uint256 amount; // CHILI stake amount
         uint256 share;
         uint256 rewardDebt;
     }
@@ -63,7 +63,7 @@ contract ChiliRestaurant {
         return user.share.mul(accChiliPerShare).div(1e12).sub(user.rewardDebt);
     }
 
-    // Enter the restaurant. Pay some SUSHIs. Earn some shares.
+    // Enter the restaurant. Pay some CHILIs. Earn some shares.
     function enter(uint256 _amount) public {
         cleanup();
         safeChiliTransfer(msg.sender, getPendingReward(msg.sender));
@@ -78,7 +78,7 @@ contract ChiliRestaurant {
         emit Enter(msg.sender, _amount);
     }
 
-    // Leave the restaurant. Claim back your SUSHIs.
+    // Leave the restaurant. Claim back your CHILIs.
     function leave(uint256 _amount) public {
         cleanup();
         safeChiliTransfer(msg.sender, getPendingReward(msg.sender));
@@ -92,7 +92,7 @@ contract ChiliRestaurant {
         emit Leave(msg.sender, _amount);
     }
 
-    // Safe chili transfer function, just in case if rounding error causes pool to not have enough SUSHIs.
+    // Safe chili transfer function, just in case if rounding error causes pool to not have enough CHILIs.
     function safeChiliTransfer(address _to, uint256 _amount) internal {
         uint256 chiliBal = chili.balanceOf(address(this));
         if (_amount > chiliBal) {

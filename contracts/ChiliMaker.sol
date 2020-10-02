@@ -31,7 +31,7 @@ contract ChiliMaker {
         pair.transfer(address(pair), pair.balanceOf(address(this)));
         pair.burn(address(this));
         uint256 wethAmount = _toWETH(token0) + _toWETH(token1);
-        _toSUSHI(wethAmount);
+        _toCHILI(wethAmount);
     }
 
     function _toWETH(address token) internal returns (uint256) {
@@ -63,7 +63,7 @@ contract ChiliMaker {
         return amountOut;
     }
 
-    function _toSUSHI(uint256 amountIn) internal {
+    function _toCHILI(uint256 amountIn) internal {
         IUniswapV2Pair pair = IUniswapV2Pair(factory.getPair(weth, chili));
         (uint reserve0, uint reserve1,) = pair.getReserves();
         address token0 = pair.token0();
